@@ -35,7 +35,7 @@ class Exchange:
     def __cmd(self):
         return self.data[0] & self.CMD_MASK
 
-    def decode_dev_basic_request(self):
+    def __decode_dev_basic_request(self):
         return {
             0x10 : 'D  Request for service mode results',         # 2.2.10
             0x21 : 'D  Command station software version request', # 2.2.14
@@ -44,11 +44,30 @@ class Exchange:
             0x81 : 'D  Resume operations request'                 # 2.2.2
         }.get(self.data[2], 'Undecoded device basic request') 
 
+    def __decode_dev_loco_ops_request(self):
+        return {
+            0x10 : 'D  Locomotive speed and direction 14 (XpressNet)', # 2.2.20.3
+            0x11 : 'D  Locomotive speed and direction 27 (XpressNet)', # 2.2.20.3
+            0x12 : 'D  Locomotive speed and direction 28 (XpressNet)', # 2.2.20.3
+            0x13 : 'D  Locomotive speed and direction 128 (XpressNet)' # 2.2.20.3
+        }.get(self.data[2], 'Undecoded device loco ops request') 
+    
     def decode_dev_request(self):
         if self.__header() == 0x21:
-            return self.decode_dev_basic_request()
+            return self.__decode_dev_basic_request()
+        if self.__header() == 0xE4:
+            return self.__decode_dev_loco_ops_request()
         return {
-            0x20 : 'D  Acknowledgement response'                  # 2.2.1
+            0x20 : 'D  Acknowledgement response',                 # 2.2.1
+            0x42 : 'D  Accessory decoder information request',    # 2.2.17
+            0x52 : 'D  Accessory decoder operation request',      # 2.2.18
+            0x80 : 'D  Stop all locomotives request (emergency stop)', # 2.2.4
+            0x91 : 'D  Emergency stop a locomotive (V1 and V2)',       # 2.2.5.1
+            0x92 : 'D  Emergency stop a locomotive (XpressNet)',       # 2.2.5.2
+            0xA1 : 'D  Locomotive information request (V1)',           # 2.2.19.1
+            0xA2 : 'D  Locomotive information request (V1 and V2)',    # 2.2.19.2
+            0xB3 : 'D  Locomotive operations (V1)',                    # 2.2.20.1
+            0xB4 : 'D  Locomotive operations (V2)'                     # 2.2.20.2
         }.get(self.data[1], 'Undecoded device request') 
 
     def __decode_cs_basics(self):
@@ -70,16 +89,21 @@ class Exchange:
             return self.__decode_cs_basics()
         if self.__header() == 0x62:
             if self.data[2] == 0x21:
-                return 'CS Software version (XBus V1 and V2)'
-            return 'CS Command station status'
+                return 'CS Software version (XBus V1 and V2)'     # 2.1.6.1
+            return 'CS Command station status response'           # 2.1.7
         if self.__header() == 0x63:
             if self.data[2] == 0x10:
-                return 'CS Service mode response (register and paged)'
+                return 'CS Service mode response (register and paged)' # 2.1.5.5
             if self.data[2] == 0x14:
-                return 'CS Service mode response (direct cv)'
-            return 'CS Software version (XpressNet)'
+                return 'CS Service mode response (direct cv)'     # 2.1.5.6
+            return 'CS Software version (XpressNet)'              # 2.1.6.2
         return {
-            0x81 : 'CS Emergency stop'
+            0x42 : 'CS Accessory decoder information response',   # 2.1.11
+            0x81 : 'CS Emergency stop',                           # 2.1.4.3
+            0x83 : 'CS Locomotive is available for operation (V1)',          # 2.1.12.1
+            0x84 : 'CS Locomotive is available for operation (V2)',          # 2.1.13.1
+            0xA3 : 'CS Locomotive is being operated by another device (V1)', # 2.1.12.2
+            0xA4 : 'CS Locomotive is being operated by another device (V2)'  # 2.1.13.2
         }.get(self.data[1], 'Undecoded command station request 0x{:X}'.format(self.data[1])) 
 
     def __header(self):

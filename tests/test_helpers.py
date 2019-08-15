@@ -163,7 +163,7 @@ def test_Exchange_cs_status():
     assert e.isvalid
     assert not e.isenquiry
     assert e.address == 9
-    assert e.short_desc() == 'CS Command station status'
+    assert e.short_desc() == 'CS Command station status response'
 
 # 2.1.8
 def test_Exchange_transfer_errors():
@@ -188,6 +188,46 @@ def test_Exchange_unsupported_instruction():
     assert not e.isenquiry
     assert e.address == 12
     assert e.short_desc() == 'CS Unsupported instruction'
+
+# 2.1.11
+def test_Exchange_accessory_decoder_information_response():
+    e = Exchange.parse('ED 42 00 00 42')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 13
+    assert e.short_desc() == 'CS Accessory decoder information response'
+
+# 2.1.12.1
+def test_Exchange_loco_available_response_v1():
+    e = Exchange.parse('EE 83 03 00 00 80')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 14
+    assert e.short_desc() == 'CS Locomotive is available for operation (V1)'
+
+# 2.1.12.2
+def test_Exchange_loco_poached_response_v1():
+    e = Exchange.parse('6F A3 03 00 00 A0')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 15
+    assert e.short_desc() == 'CS Locomotive is being operated by another device (V1)'
+
+# 2.1.13.1
+def test_Exchange_loco_available_response_v2():
+    e = Exchange.parse('F0 84 03 00 00 00 87')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 16
+    assert e.short_desc() == 'CS Locomotive is available for operation (V2)'
+
+# 2.1.13.2
+def test_Exchange_loco_poached_response_v2():
+    e = Exchange.parse('71 A4 03 00 00 00 A7')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 17
+    assert e.short_desc() == 'CS Locomotive is being operated by another device (V2)'
 
 #
 # Test messages from the device to the command station
@@ -214,6 +254,31 @@ def test_Exchange_stop_operations_request():
     assert e.address == 3
     assert e.short_desc() == 'D  Stop operations request (emergency off)'
 
+# 2.2.4
+def test_Exchange_stop_all_locos_request():
+    e = Exchange.parse('44 80 80')
+    assert e.isvalid
+    assert e.address == 4
+    assert e.short_desc() == 'D  Stop all locomotives request (emergency stop)'
+
+# 2.2.5.1
+def test_Exchange_estop_loco_request_v1v2():
+    e = Exchange.parse('C5 91 03 92')
+    assert e.isvalid
+    assert e.address == 5
+    assert e.short_desc() == 'D  Emergency stop a locomotive (V1 and V2)'
+
+# 2.2.5.2
+def test_Exchange_estop_loco_request_xpressnet():
+    e = Exchange.parse('C6 92 00 03 91')
+    assert e.isvalid
+    assert e.address == 6
+    assert e.short_desc() == 'D  Emergency stop a locomotive (XpressNet)'
+
+# 2.2.6
+# 2.2.7
+# 2.2.8
+
 # 2.2.14
 def test_Exchange_command_station_sw_version_request():
     e = Exchange.parse('41 21 21 00')
@@ -229,3 +294,84 @@ def test_Exchange_command_station_status_request():
     assert not e.isenquiry
     assert e.address == 2
     assert e.short_desc() == 'D  Command station status request'            
+
+# 2.2.17
+def test_Exchange_accessory_decoder_information_request():
+    e = Exchange.parse('D1 42 00 80 C2')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 17
+    assert e.short_desc() == 'D  Accessory decoder information request'            
+
+# 2.2.18
+def test_Exchange_accessory_decoder_operation_request():
+    e = Exchange.parse('D2 52 00 88 DA')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 18
+    assert e.short_desc() == 'D  Accessory decoder operation request'            
+
+# 2.2.19.1
+def test_Exchange_loco_information_request_v1():
+    e = Exchange.parse('53 A1 03 A2')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 19
+    assert e.short_desc() == 'D  Locomotive information request (V1)'            
+
+# 2.2.19.2
+def test_Exchange_loco_information_request_v1v2():
+    e = Exchange.parse('D4 A2 03 00 A1')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 20
+    assert e.short_desc() == 'D  Locomotive information request (V1 and V2)'            
+
+# 2.2.19.3
+# 2.2.19.4
+# 2.2.20.1
+def test_Exchange_loco_operations_v1():
+    e = Exchange.parse('D7 B3 03 4F 00 FF')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 23
+    assert e.short_desc() == 'D  Locomotive operations (V1)'            
+
+# 2.2.20.2
+def test_Exchange_loco_operations_v2():
+    e = Exchange.parse('D8 B4 03 4F 00 00 F8')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 24
+    assert e.short_desc() == 'D  Locomotive operations (V2)'            
+
+# 2.2.20.3
+def test_Exchange_loco_speed_and_direction_14_xn():
+    e = Exchange.parse('59 E4 10 00 03 0F F8')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 25
+    assert e.short_desc() == 'D  Locomotive speed and direction 14 (XpressNet)'            
+#
+def test_Exchange_loco_speed_and_direction_27_xn():
+    e = Exchange.parse('59 E4 11 00 03 1F E9')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 25
+    assert e.short_desc() == 'D  Locomotive speed and direction 27 (XpressNet)'            
+#
+def test_Exchange_loco_speed_and_direction_28_xn():
+    e = Exchange.parse('59 E4 12 00 03 1F EA')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 25
+    assert e.short_desc() == 'D  Locomotive speed and direction 28 (XpressNet)'            
+#
+def test_Exchange_loco_speed_and_direction_128_xn():
+    e = Exchange.parse('59 E4 13 00 03 7F 8B')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 25
+    assert e.short_desc() == 'D  Locomotive speed and direction 128 (XpressNet)'            
+# 2.2.20.4
+# 2.2.20.5
