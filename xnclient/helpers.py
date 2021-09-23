@@ -55,6 +55,10 @@ class Exchange:
     def decode_dev_request(self):
         if self.__header() == 0x21:
             return self.__decode_dev_basic_request()
+        if self.__header() == 0xE3:
+            if self.data[2] == 0x00:
+                return 'D  Locomotive information request (XpressNet)' # 2.2.19.3
+            return 'D  Function status request (XpressNet)'            # 2.2.19.4
         if self.__header() == 0xE4:
             return self.__decode_dev_loco_ops_request()
         return {

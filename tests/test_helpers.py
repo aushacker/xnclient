@@ -328,7 +328,21 @@ def test_Exchange_loco_information_request_v1v2():
     assert e.short_desc() == 'D  Locomotive information request (V1 and V2)'            
 
 # 2.2.19.3
+def test_Exchange_loco_information_request_xn():
+    e = Exchange.parse('55 E3 00 00 03 E0')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 21
+    assert e.short_desc() == 'D  Locomotive information request (XpressNet)'            
+
 # 2.2.19.4
+def test_Exchange_function_status_request_xn():
+    e = Exchange.parse('56 E3 07 00 03 E7')
+    assert e.isvalid
+    assert not e.isenquiry
+    assert e.address == 22
+    assert e.short_desc() == 'D  Function status request (XpressNet)'            
+
 # 2.2.20.1
 def test_Exchange_loco_operations_v1():
     e = Exchange.parse('D7 B3 03 4F 00 FF')
